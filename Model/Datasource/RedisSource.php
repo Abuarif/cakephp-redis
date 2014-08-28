@@ -30,11 +30,17 @@ class RedisSource extends DataSource {
 
     try {
       $this->_connection = new Redis();
-      $this->_connection->connect($this->config['host'], $this->config['port']);
-      if (isset($this->config['db'])) {
-        $this->_connection->select($this->config['db']);
+
+      if (!$this->_connection->connect($this->config['host'], $this->config['port'])) {
+        throw new Exception(sprintf('Could not connect to Redis at %s:%d', $this->config['host'], $this->config['port']));
       }
+
+      if (isset($this->config['db']) && !$this->_connection->select($this->config['db'])) {
+        throw new Exception(sprintf('Could not change to %d for the current connection.', $this->config['db']));
+      }
+
       $this->connected = true;
+
     } catch (Exception $e) {
       throw new MissingConnectionException(array(
         'class' => get_class($this),
