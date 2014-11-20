@@ -25,7 +25,6 @@ class RedisSource extends DataSource {
   }
 
   public function connect() {
-    $config = $this->config;
     $this->connected = false;
 
     try {
@@ -33,6 +32,14 @@ class RedisSource extends DataSource {
 
       if (!$this->_connection->connect($this->config['host'], $this->config['port'])) {
         throw new Exception(sprintf('Could not connect to Redis at %s:%d', $this->config['host'], $this->config['port']));
+      }
+
+      if (!empty($this->config['password'])) {
+        $this->_connection->auth($this->config['password']);
+      }
+
+      if(!$this->_connection->ping()) {
+        throw new Exception(sprintf('Redis requires authentication at %s:%d', $this->config['host'], $this->config['port']));
       }
 
       if (isset($this->config['db']) && !$this->_connection->select($this->config['db'])) {
