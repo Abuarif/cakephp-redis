@@ -35,6 +35,14 @@ class RedisSource extends DataSource {
         throw new Exception(sprintf('Could not connect to Redis at %s:%d', $this->config['host'], $this->config['port']));
       }
 
+      if (!empty($this->config['password'])) {
+        $this->_connection->auth($this->config['password']);
+      }
+
+      if(!$this->_connection->ping()) {
+        throw new Exception(sprintf('Redis requires authentication at %s:%d', $this->config['host'], $this->config['port']));
+      }
+
       if (isset($this->config['db']) && !$this->_connection->select($this->config['db'])) {
         throw new Exception(sprintf('Could not change to %d for the current connection.', $this->config['db']));
       }
