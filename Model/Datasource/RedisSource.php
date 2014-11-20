@@ -25,7 +25,6 @@ class RedisSource extends DataSource {
   }
 
   public function connect() {
-    $config = $this->config;
     $this->connected = false;
 
     try {
